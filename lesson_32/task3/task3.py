@@ -13,22 +13,31 @@ def get_api_key():
     config.read('config.ini')
     return config['openweathermap']['api']
 
-def weather(api_key):
-	degree_sign = u'\N{DEGREE SIGN}'
-	ow = pyowm.OWM(api_key)
-	place_input = input(f"Enter the place:\t")
-	place = ow.weather_at_place(place_input)  # obseration
-	w = place.get_weather()  # get request with place
-	temperature = w.get_temperature('celsius')
-	status = w.get_status()
-	icon = w.get_weather_icon_url()
-	humidity = w.get_humidity()
-	wind = w.get_wind()['speed']  # default meters per second
+def weather(api_key, place_input):
+    ow = pyowm.OWM(api_key)
+    place = ow.weather_at_place(place_input)  # obseration
+    w = place.get_weather()  # get request with place
+    temperature = w.get_temperature("celsius")
+    status = w.get_status()
+    icon = w.get_weather_icon_url()
+    humidity = w.get_humidity()
+    wind = w.get_wind()["speed"]  # default meters per second
+    return {
+        "place": place_input,
+        "temperature": temperature["temp"],
+        "status": status,
+        "icon": icon,
+        "humidity": humidity,
+        "wind": wind,
+    }
 
-	return print("Weather in {} city | Temperature C: {}{} | Status: {} {} \nHumidity: {}\n Wind: {}"
-		  .format(place_input, temperature['temp'], degree_sign, status, icon, humidity, wind))
 
 if __name__ == "__main__":
-
-	api_key = get_api_key()
-	weather(api_key)
+    api_key = get_api_key()
+    place = input(f"Enter the place:\t")
+    rez = weather(api_key, place)
+    print(
+        "Weather in {place} city | "
+        "Temperature C: {temperature}\N{DEGREE SIGN} |"
+        " Status: {status} {icon} \nHumidity: {humidity}\n Wind: {wind}".format(**rez)
+    )
